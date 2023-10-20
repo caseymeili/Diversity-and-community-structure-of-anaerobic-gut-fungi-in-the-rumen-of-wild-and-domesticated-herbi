@@ -1,0 +1,55 @@
+Rumen sequence processing using mothur, vsearch and bash
+
+Mothur
+make.contigs(file=Rumen.txt)
+summary.seqs(fasta=Rumen.trim.contigs.fasta)
+screen.seqs(fasta=Rumen.trim.contigs.fasta, group=Rumen.contigs.groups, maxambig=0, minlength=300, maxlength=370, maxhomop=8)
+unique.seqs(fasta=Rumen.trim.contigs.good.fasta)
+count.seqs(name=Rumen.trim.contigs.good.names, group=Rumen.contigs.good.groups, compress=f)
+align.seqs(fasta=Rumen.trim.contigs.good.unique.fasta, reference=Refs_mafft_short.fasta)
+
+Server/bash
+sort Rumen.trim.contigs.good.unique.align.report -k12n,12 Rumen.trim.contigs.good.unique.align.report>sorted
+
+Mothur
+remove.seqs(fasta=Rumen.trim.contigs.good.unique.align, count=Rumen.trim.contigs.good.count_table, accnos=remove-mar18.txt)
+pre.cluster(fasta=Rumen.trim.contigs.good.unique.pick.align, count=Rumen.trim.contigs.good.pick.count_table, diffs=3, processors=32)
+degap.seqs(fasta=Rumen.trim.contigs.good.unique.pick.precluster.align)
+
+Vsearch
+vsearch --cluster_size Rumen.trim.contigs.good.unique.pick.precluster.ng4.sorted.fasta --centroids OTUrep.95 --id 0.95 --mothur_shared_out sharedFile.95 --uc ClusterInfo.95
+
+Mothur
+remove.seqs(fasta=Rumen.trim.contigs.good.unique.pick.precluster.ng.fasta, count=Rumen.trim.contigs.good.unique.pick.precluster.count_table, accnos=singletons.txt)
+make.shared(count=Rumen.trim.contigs.good.unique.pick.precluster.pick.count_table, label=asv)
+
+Vsearch
+vsearch --cluster_size Rumen.trim.contigs.good.unique.pick.precluster.ng.pick.fasta --centroids OTU.rep.species --id 0.97 --biomout biomout.species --uc ClusterInfo.species --clusters Species
+
+Server/bash
+Make folder: ClustersSpecies
+mv Species* /projects/cas002/casey/Rumen_Mammals_Final/ClustersSpecies
+cd /projects/cas002/casey/Rumen_Mammals_Final/ClustersSpecies 
+for T in *; do      grep ">" -i "$T" >"${T%}_Names"; done
+for T in *_Names; do    sed 's/>//g' "$T" >"${T%}_Clean"; done
+for T in *_Clean; do    sed -z 's/\n/,/g;s/,$/\n/' "$T" >"${T%}_List"; done
+cat *_List >Species.list
+mv Species.list /projects/cas002/casey/Rumen_Mammals_Final
+tr "\n" "\t" < Species.list >Species1.list
+
+Mothur 
+make.shared(count=Rumen.trim.contigs.good.unique.pick.precluster.pick.count_table, list=Species_mothur.list)
+summary.single(shared=Rumen.trim.contigs.good.unique.pick.precluster.pick.asv.shared, calc=sobs-chao-ace-simpsoneven-shannoneven-shannon-simpson-invsimpson-coverage, subsample=50)
+summary.single(shared=Rumen.trim.contigs.good.unique.pick.precluster.pick.asv.shared, calc=sobs-chao-ace-simpsoneven-shannoneven-shannon-simpson-invsimpson-coverage, subsample=F)
+summary.single(shared=Species_mothur.shared, calc=sobs-chao-ace-simpsoneven-shannoneven-shannon-simpson-invsimpson-coverage, subsample=50)
+summary.single(shared=Species_mothur.shared, calc=sobs-chao-ace-simpsoneven-shannoneven-shannon-simpson-invsimpson-coverage, subsample=F)
+
+BLAST
+makeblastdb -in RestRefs1.ng.fasta -dbtype nucl
+blastn -query Rumen.trim.contigs.good.unique.pick.precluster.ng.pick.fasta -db RestRefs1.fasta -out Rumen_final_blastn -outfmt 7 -max_target_seqs 1 -num_threads 32
+
+Mothur
+get.seqs(fasta=Rumen.trim.contigs.good.unique.pick.precluster.ng.pick.fasta, accnos=novel.945.txt)
+
+Vsearch
+vsearch --cluster_size Rumen.trim.contigs.good.unique.pick.precluster.ng.pick.pick.fasta --centroids Novel.OTUrep.95 --id 0.95 --mothur_shared_out novel.sharedFile.95 --uc novel.ClusterInfo.95
