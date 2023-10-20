@@ -1,27 +1,9 @@
-# AGF_Mammalian_Herbivores
+# Diversity and community structure of anaerobic gut fungi in the rumen of wild and domesticated herbivores.
 
-## Readme for the code files associated with the paper
+Analysis for the paper: Meili, C.H. et al. (2023). Diversity and community structure of anaerobic gut fungi in the rumen of wild and domesticated herbivores. Applied and Environmental Microbiology. 14(1), 3798. doi: 10.1038/s41467-023-39508-z
 
-Code in Alpha.r was used to produce alpha-diversity results:
-	Figure S7.
-	Can also be applied to create Table S9.
+With the exception of inital data processing, all code was written and executed using RStudio and R version 4.1.3. Mothur version 1.35.0, Vsearch version 2.18.0, and BLASR version XXXXXXX used for inital data procesing 
 
+Some of the computing for this project was performed at the High Performance Computing Center at Oklahoma State University supported in part through the National Science Foundation grant OAC-1531128.
 
-Code in BetaDiversity.r was used to create Beta diversity ordination plots, Permanova, and multivariate analysis:
-	Figure 4
-	Figure S8
-	Can also be applied to create Fig S11.
-
-
-Code in NST2.r was used to create stochasticity figures and tables:
-	Figure 3
-	Table S5
-
-
-Code in Phylosymbiosis.r includes PACo analysis, LIPA, global measures of phylosymbiosis, and DPCoA plot:
-	Figure 5A-C
-	Table S6
-	Figure 5D
-	Table S7
-	Table S8
-	Figure S10
+Questions can be directed to casey.meili@okstate.edu
